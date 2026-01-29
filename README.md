@@ -83,13 +83,3 @@ Groover, M. P. - *Fundamentals of Modern Manufacturing* - Chapter 21: Six Sigma 
 
 Kaggle F1 World Championship Dataset (1950-2024)
 https://www.kaggle.com/datasets/rohanrao/formula-1-world-championship-1950-2020
-
----
-
-## TODO (Before Lab Goes Live)
-
-- [ ] Create separate public student repo (exclude: solution keys, `prepare_data.R`, `data/raw/`)
-
----
-
-*Lab materials developed with assistance from Claude (Anthropic).*
