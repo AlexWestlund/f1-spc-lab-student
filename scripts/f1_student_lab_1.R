@@ -8,9 +8,9 @@
 # INSTRUCTIONS:
 # -------------
 # 1. Read through each section carefully
-# 2. Complete the TODO items by filling in the missing code (replace ____)
+# 2. Complete the TODO items (3) by filling in the missing code (replace ____)
 # 3. Run each line/section with Ctrl+Enter (Positron/VS Code) or Cmd+Enter (Mac)
-# 4. Answer the questions in the spaces provided
+# 4. Answer the questions in a separate document (e.g., Word, text, or markdown file)
 #
 # LEARNING OBJECTIVES:
 # - Explore and understand a real-world dataset structure
@@ -187,11 +187,11 @@ cat("\nSaved: pareto_dnf.png\n")
 
 
 # ==============================================================================
-# QUESTION 1: PARETO ANALYSIS
+# QUESTION 1: PARETO ANALYSIS - ANSWER IN SECONDARY FILE (.docx/.txt/.md)
 # ==============================================================================
 #
-# Q1.1: What are the "vital few" failure modes that F1 teams should prioritize?
-#
+# Q1.1: What are the "vital few" failure modes that F1 teams should **prioritize**?
+#       Hint: Which failure modes can the team affect through engineering changes?
 #       Answer: ________________________________________________________________
 #
 #       ________________________________________________________________________
@@ -205,6 +205,7 @@ cat("\nSaved: pareto_dnf.png\n")
 #       Answer: ________________________________________________________________
 #
 #       ________________________________________________________________________
+#
 # ==============================================================================
 
 
@@ -225,6 +226,8 @@ Summarize your findings:
 4. Top failure mode: ____________________
 5. Number of 'Vital Few' categories: ____________________
 ")
+
+# Copy -> paste this summary into your secondary answer file.
 
 cat("\n======================================================================\n")
 cat("SESSION 1 COMPLETE!\n")

@@ -1,5 +1,5 @@
 # ==============================================================================
-# EIND 142 - Lab Session 3: Z-Scores and Moving Averages in F1 Racing
+# EIND 142 - Lab Session 3: Moving Averages in F1 Racing
 # ==============================================================================
 #
 # Student Name: ____________________
@@ -8,12 +8,11 @@
 # INSTRUCTIONS:
 # -------------
 # 1. Read through each section carefully
-# 2. Complete the TODO items by filling in the missing code (replace ____)
+# 2. Complete the TODO items (5) by filling in the missing code (replace ____)
 # 3. Run each line/section with Ctrl+Enter (Positron/VS Code) or Cmd+Enter (Mac)
-# 4. Answer the questions in the spaces provided
+# 4. Answer the questions in a separate document (e.g., Word, text, or markdown file)
 #
 # LEARNING OBJECTIVES:
-# - Use Z-scores to evaluate performance relative to a baseline
 # - Calculate and interpret Simple Moving Averages (SMA)
 # - Calculate and interpret Weighted Moving Averages (WMA)
 # - Calculate and interpret Exponential Moving Averages (EMA)
@@ -22,9 +21,8 @@
 # SCENARIO:
 # ---------
 # You are a race engineer for a Formula 1 team. During a race, you need to:
-# 1. Evaluate pit stop performance using z-scores (how did we do vs competitors?)
-# 2. Track lap time trends using moving averages (are our tires degrading?)
-# 3. Compare driver performance across stints
+# 1. Track lap time trends using moving averages (are our tires degrading?)
+# 2. Compare driver performance across stints
 #
 # Moving averages help smooth out lap-to-lap noise and reveal underlying trends,
 # which is critical for making pit stop strategy decisions!
@@ -43,134 +41,7 @@ OUTPUT_DIR <- "outputs"
 
 
 # ==============================================================================
-# PART 1: PIT STOP PERFORMANCE ANALYSIS (Z-SCORES)
-# ==============================================================================
-#
-# BACKGROUND:
-# -----------
-# Pit stops are critical in F1. The "stationary time" (when the car is stopped)
-# is typically 2-3 seconds for a tire change, but the TOTAL pit stop duration
-# includes pit lane entry, the stop itself, and pit lane exit (usually 20-30s).
-#
-# How do we know if a pit stop was "good" or "bad"? We compare it to other
-# pit stops from the SAME RACE. This is fair because all teams face identical
-# conditions: same track, same weather, same pit lane.
-#
-# We use Z-SCORES to measure how far a pit stop is from the race average:
-#
-#   z = (pit_stop_time - race_mean) / race_standard_deviation
-#
-# Interpretation:
-#   z < -1.5:  Excellent - significantly faster than average
-#   -1.5 to -0.5: Good - faster than average
-#   -0.5 to +0.5: Normal - within typical range
-#   +0.5 to +1.5: Slow - slower than average
-#   z > +1.5:  Problem - significantly slower, something went wrong
-# ==============================================================================
-
-cat("\n======================================================================\n")
-cat("PART 1: PIT STOP PERFORMANCE ANALYSIS (Z-Scores)\n")
-cat("======================================================================\n")
-
-# We'll analyze pit stops from the 2024 British Grand Prix
-RACE_ID_PITS <- 1132
-
-# Get statistics for all pit stops in this race
-race_pit_stats <- get_race_pit_stats(race_id = RACE_ID_PITS)
-
-# Data structure - race_pit_stats contains:
-#   $race_name, $year, $n, $mean, $sd, $data
-cat("  $data columns:", paste(names(race_pit_stats$data), collapse = ", "), "\n")
-
-cat(sprintf("\n%s %d Pit Stop Statistics:\n", race_pit_stats$race_name, race_pit_stats$year))
-cat(sprintf("  Total pit stops: %d\n", race_pit_stats$n))
-cat(sprintf("  Race Mean: %.2f seconds\n", race_pit_stats$mean))
-cat(sprintf("  Standard Deviation: %.2f seconds\n", race_pit_stats$sd))
-
-# Show all pit stops sorted by duration
-cat("\nAll pit stops from this race (sorted by duration):\n")
-print(race_pit_stats$data %>%
-        select(driver, stop, lap, duration_sec) %>%
-        arrange(duration_sec))
-
-# Select specific pit stops for visualization
-example_stops <- race_pit_stats$data %>%
-  filter(
-    (driver == "Verstappen" & stop == 1) |
-    (driver == "Alonso" & stop == 1) |
-    (driver == "Pérez" & stop == 2) |
-    (driver == "Albon" & stop == 1)
-  ) %>%
-  arrange(duration_sec) %>%
-  select(driver, duration_sec, stop, lap)
-
-cat("\nSelected pit stops for analysis:\n")
-print(example_stops)
-
-# Create the labeled pit stop visualization
-fig_labeled_pits <- plot_labeled_pit_stops(
-  example_stops,
-  circuit_mean = race_pit_stats$mean,
-  circuit_sd = race_pit_stats$sd,
-  title = sprintf("%s %d - Pit Stop Performance", race_pit_stats$race_name, race_pit_stats$year),
-  circuit_name = "vs Race Average"
-)
-print(fig_labeled_pits)
-ggsave(file.path(OUTPUT_DIR, "pit_stop_zscore_labeled.png"), fig_labeled_pits,
-       width = 12, height = 7, dpi = 150)
-cat("\nSaved: pit_stop_zscore_labeled.png\n")
-
-
-# --- SECTION 1.1: Calculate Z-Scores ---
-
-# TODO 1: Calculate the z-score for the FASTEST pit stop
-# HINT: Use calculate_zscore(value, mean, sd)
-fastest_time <- example_stops$duration_sec[1]
-fastest_zscore <- calculate_zscore(____, ____, ____)
-
-cat("\n--------------------------------------------------\n")
-cat("Z-SCORE CALCULATION (Fastest Pit Stop):\n")
-cat("--------------------------------------------------\n")
-cat(sprintf("Pit stop time: %.2f seconds\n", fastest_time))
-cat(sprintf("Race mean: %.2f seconds\n", race_pit_stats$mean))
-cat(sprintf("Race SD: %.2f seconds\n", race_pit_stats$sd))
-cat(sprintf("\nz = (%.2f - %.2f) / %.2f = %.2f\n",
-            fastest_time, race_pit_stats$mean, race_pit_stats$sd, fastest_zscore))
-
-# TODO 2: Calculate the z-score for the SLOWEST pit stop in our sample
-# HINT: Same pattern as TODO 1
-slowest_time <- example_stops$duration_sec[nrow(example_stops)]
-slowest_zscore <- calculate_zscore(____, ____, ____)
-
-cat("\n--------------------------------------------------\n")
-cat("Z-SCORE CALCULATION (Slowest Pit Stop):\n")
-cat("--------------------------------------------------\n")
-cat(sprintf("Pit stop time: %.2f seconds\n", slowest_time))
-cat(sprintf("z-score: %.2f\n", slowest_zscore))
-cat(sprintf("\nInterpretation: This pit stop is %.2f standard deviations %s the mean.\n",
-            abs(slowest_zscore), ifelse(slowest_zscore < 0, "BELOW", "ABOVE")))
-
-# TODO 3: Categorize the slowest pit stop based on z-score thresholds
-# HINT: Use categorize_zscore(zscore)
-# Categories: "Excellent" (z < -1.5), "Good" (-1.5 to -0.5), "Normal" (-0.5 to 0.5),
-#             "Slow" (0.5 to 1.5), "Problem" (z > 1.5)
-slowest_category <- categorize_zscore(____)
-
-cat(sprintf("Category: %s\n", slowest_category))
-
-# QUESTION 1.1: Why do we compare pit stops to the race average rather than
-# an absolute standard (like "under 25 seconds is good")?
-# Your answer: ________________________________________________________________
-# _____________________________________________________________________________
-
-# QUESTION 1.2: A pit stop with z = -1.0 is categorized as "Good". What does
-# this mean in practical terms? Is it faster or slower than average?
-# Your answer: ________________________________________________________________
-# _____________________________________________________________________________
-
-
-# ==============================================================================
-# PART 2: INTRODUCTION TO MOVING AVERAGES
+# PART 1: INTRODUCTION TO MOVING AVERAGES
 # ==============================================================================
 #
 # BACKGROUND:
@@ -194,7 +65,7 @@ cat(sprintf("Category: %s\n", slowest_category))
 # ==============================================================================
 
 cat("\n======================================================================\n")
-cat("PART 2: INTRODUCTION TO MOVING AVERAGES\n")
+cat("PART 1: INTRODUCTION TO MOVING AVERAGES\n")
 cat("======================================================================\n")
 
 # Load Hamilton's lap times from the 2024 British GP
@@ -217,7 +88,7 @@ cat(sprintf("  Worst lap:  %.3f seconds (Lap %d)\n",
 cat(sprintf("  Mean:       %.3f seconds\n", mean(hamilton_data$lap_time_sec)))
 
 
-# --- SECTION 2.1: Simple Moving Average (SMA) ---
+# --- SECTION 1.1: Simple Moving Average (SMA) ---
 
 # --------------------------------------------------
 # SIMPLE MOVING AVERAGE (SMA):
@@ -231,7 +102,7 @@ cat(sprintf("  Mean:       %.3f seconds\n", mean(hamilton_data$lap_time_sec)))
 
 window_size <- 5
 
-# TODO 4: Calculate the simple moving average of lap times
+# TODO 1: Calculate the simple moving average of lap times
 # HINT: Use calculate_moving_average(data, window)
 sma_values <- calculate_moving_average(____, window = ____)
 
@@ -250,7 +121,7 @@ cat(sprintf("  SMA = %.3f (sum / 5)\n", manual_sma))
 cat(sprintf("  Function result: %.3f\n", hamilton_data$sma[10]))
 
 
-# --- SECTION 2.2: Weighted Moving Average (WMA) ---
+# --- SECTION 1.2: Weighted Moving Average (WMA) ---
 
 # --------------------------------------------------
 # WEIGHTED MOVING AVERAGE (WMA):
@@ -262,7 +133,7 @@ cat(sprintf("  Function result: %.3f\n", hamilton_data$sma[10]))
 # - Responds faster to changes than SMA
 # - Still uses a fixed lookback window
 
-# TODO 5: Calculate the weighted moving average
+# TODO 2: Calculate the weighted moving average
 # HINT: Use calculate_weighted_moving_average(data, window)
 wma_values <- calculate_weighted_moving_average(____, window = ____)
 
@@ -281,7 +152,7 @@ cat(sprintf("  ----------------\n"))
 cat(sprintf("  WMA = %.3f / %d = %.3f\n", weighted_sum, weight_total, weighted_sum / weight_total))
 
 
-# --- SECTION 2.3: Exponential Moving Average (EMA) ---
+# --- SECTION 1.3: Exponential Moving Average (EMA) ---
 
 # --------------------------------------------------
 # EXPONENTIAL MOVING AVERAGE (EMA):
@@ -296,7 +167,7 @@ cat(sprintf("  WMA = %.3f / %d = %.3f\n", weighted_sum, weight_total, weighted_s
 
 alpha <- 0.3
 
-# TODO 6: Calculate the exponential moving average
+# TODO 3: Calculate the exponential moving average
 # HINT: Use calculate_exponential_moving_average(data, alpha)
 ema_values <- calculate_exponential_moving_average(____, alpha = ____)
 
@@ -312,26 +183,26 @@ ema_2 <- alpha * hamilton_data$lap_time_sec[2] + (1 - alpha) * hamilton_data$lap
 cat(sprintf("  Lap 2: EMA = 0.3 * %.3f + 0.7 * %.3f = %.3f\n",
             hamilton_data$lap_time_sec[2], hamilton_data$lap_time_sec[1], ema_2))
 
-# QUESTION 2.1: If you increase the window size for SMA from 5 to 10, what
+# QUESTION 1.1: If you increase the window size for SMA from 5 to 10, what
 # happens to the smoothness of the line? What about responsiveness to changes?
 # Your answer: ________________________________________________________________
 # _____________________________________________________________________________
 
-# QUESTION 2.2: For EMA, what happens if you use alpha = 0.9 vs alpha = 0.1?
+# QUESTION 1.2: For EMA, what happens if you use alpha = 0.9 vs alpha = 0.1?
 # Which would respond faster to a sudden change in lap times?
 # Your answer: ________________________________________________________________
 # _____________________________________________________________________________
 
 
 # ==============================================================================
-# PART 3: COMPARING MOVING AVERAGE METHODS
+# PART 2: COMPARING MOVING AVERAGE METHODS
 # ==============================================================================
 #
 # Now let's visualize all three methods together to see how they differ!
 # ==============================================================================
 
 cat("\n======================================================================\n")
-cat("PART 3: COMPARING MOVING AVERAGE METHODS\n")
+cat("PART 2: COMPARING MOVING AVERAGE METHODS\n")
 cat("======================================================================\n")
 
 cat("\n--------------------------------------------------\n")
@@ -402,14 +273,14 @@ cat(sprintf("  EMA change:  %.3f seconds\n",
 # - WMA responds faster (gives more weight to the change)
 # - EMA response depends on alpha (smaller alpha = slower response)
 
-# QUESTION 3.1: Looking at the plot, which moving average method tracks the
+# QUESTION 2.1: Looking at the plot, which moving average method tracks the
 # raw data most closely? Which produces the smoothest line?
 # Your answer: ________________________________________________________________
 # _____________________________________________________________________________
 
 
 # ==============================================================================
-# PART 4: DRIVER COMPARISON - STINT ANALYSIS
+# PART 3: DRIVER COMPARISON - STINT ANALYSIS
 # ==============================================================================
 #
 # Now let's compare two drivers from the same race to see how moving averages
@@ -420,7 +291,7 @@ cat(sprintf("  EMA change:  %.3f seconds\n",
 # ==============================================================================
 
 cat("\n======================================================================\n")
-cat("PART 4: DRIVER COMPARISON - Stint Analysis\n")
+cat("PART 3: DRIVER COMPARISON - Stint Analysis\n")
 cat("======================================================================\n")
 
 # Load Verstappen's lap times
@@ -431,7 +302,7 @@ cat("\nComparing lap time trends:\n")
 cat("  Lewis Hamilton (Winner)\n")
 cat("  Max Verstappen (P2, +1.465s)\n")
 
-# TODO 7: Calculate all three moving averages for Verstappen in one call
+# TODO 4: Calculate all three moving averages for Verstappen in one call
 # HINT: Use calculate_all_moving_averages(data, window, alpha)
 ver_ma <- calculate_all_moving_averages(____, window = window_size, alpha = alpha)
 
@@ -485,13 +356,13 @@ ggsave(file.path(OUTPUT_DIR, "driver_comparison_ema.png"), fig_driver_compare,
 cat("\nSaved: driver_comparison_ema.png\n")
 
 
-# --- SECTION 4.1: Analyze Tire Degradation ---
+# --- SECTION 3.1: Analyze Tire Degradation ---
 
 cat("\n--------------------------------------------------\n")
 cat("TIRE DEGRADATION ANALYSIS:\n")
 cat("--------------------------------------------------\n")
 
-# TODO 8: Calculate the average lap-over-lap change for each driver
+# TODO 5: Calculate the average lap-over-lap change for each driver
 # This shows the overall trend (positive = getting slower = tire degradation)
 # HINT: Use diff() to get lap-to-lap changes, then mean()
 hamilton_deltas <- diff(hamilton_data$lap_time_sec)
@@ -515,12 +386,12 @@ if (ver_avg_delta > 0) {
   cat("  Verstappen: Lap times DECREASING (fuel effect/track evolution dominant)\n")
 }
 
-# QUESTION 4.1: Looking at the driver comparison plot, where do you see the
+# QUESTION 3.1: Looking at the driver comparison plot, where do you see the
 # biggest differences between Hamilton and Verstappen? What might explain this?
 # Your answer: ________________________________________________________________
 # _____________________________________________________________________________
 
-# QUESTION 4.2: If you were Verstappen's race engineer and saw his EMA trending
+# QUESTION 3.2: If you were Verstappen's race engineer and saw his EMA trending
 # upward faster than Hamilton's, what strategy adjustment might you consider?
 # Your answer: ________________________________________________________________
 # _____________________________________________________________________________
@@ -536,17 +407,12 @@ cat("======================================================================\n")
 # KEY TAKEAWAYS:
 # ==============
 #
-# 1. Z-SCORES normalize data for fair comparison:
-#    - Compare to the right baseline (race average, not absolute values)
-#    - Positive z = worse than average, Negative z = better than average
-#    - Used in Lab 2 to enable cross-race comparison for control charts
-#
-# 2. MOVING AVERAGES smooth noise to reveal trends:
+# 1. MOVING AVERAGES smooth noise to reveal trends:
 #    - SMA: Simple, equal weights, slow response
 #    - WMA: Weighted toward recent, moderate response
 #    - EMA: Exponential decay, fastest response, tunable via alpha
 #
-# 3. DRIVER COMPARISON shows how moving averages reveal:
+# 2. DRIVER COMPARISON shows how moving averages reveal:
 #    - Relative pace differences
 #    - Tire degradation patterns
 #    - Strategic opportunities
@@ -560,14 +426,14 @@ cat("\n======================================================================\n"
 cat("FINAL QUESTIONS\n")
 cat("======================================================================\n")
 
-# QUESTION 6.1: How are z-scores used differently in Part 1 of this lab
-# versus in Lab 2's control charts?
+# QUESTION 4.1: A race engineer needs to make pit stop decisions in real-time.
+# Which moving average method would you recommend? Why?
 # Your answer: ________________________________________________________________
 # _____________________________________________________________________________
 # _____________________________________________________________________________
 
-# QUESTION 6.2: A race engineer needs to make pit stop decisions in real-time.
-# Which moving average method would you recommend? Why?
+# QUESTION 4.2: How might you combine control charts (from Lab 2) with moving
+# averages (from this lab) to monitor a race team's performance?
 # Your answer: ________________________________________________________________
 # _____________________________________________________________________________
 # _____________________________________________________________________________

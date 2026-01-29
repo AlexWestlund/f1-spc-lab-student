@@ -8,9 +8,9 @@
 # INSTRUCTIONS:
 # -------------
 # 1. Read through each section carefully
-# 2. Complete the TODO items by filling in the missing code (replace ____)
+# 2. Complete the TODO items (8) by filling in the missing code (replace ____)
 # 3. Run each line/section with Ctrl+Enter (Positron/VS Code) or Cmd+Enter (Mac)
-# 4. Answer the questions in the spaces provided
+# 4. Answer the questions in a separate document (e.g., Word, text, or markdown file)
 #
 # LEARNING OBJECTIVES:
 # - Build X-bar and R control charts for process monitoring
@@ -90,6 +90,55 @@ cat(sprintf("Races with valid data: %d\n", pit_zscore_data$n_races))
 #   z = +1.0  means 1 standard deviation SLOWER than the race average
 #
 # For a top team like Red Bull, we expect NEGATIVE z-scores (faster than average).
+
+# --- SECTION 1.1: Visualizing Z-Scores ---
+# Let's look at a single race's pitstops to SEE what z-scores mean visually.
+# We'll examine pit stops from the 2024 British Grand Prix.
+
+cat("\n--------------------------------------------------\n")
+cat("VISUALIZING Z-SCORES (Single Race Example):\n")
+cat("--------------------------------------------------\n")
+
+# Get pit stop statistics for all teams at the British GP
+RACE_ID_EXAMPLE <- 1132  # 2024 British Grand Prix
+race_pit_stats <- get_race_pit_stats(race_id = RACE_ID_EXAMPLE)
+
+cat(sprintf("\n%s %d - All Teams Pit Stop Statistics:\n",
+            race_pit_stats$race_name, race_pit_stats$year))
+cat(sprintf("  Total pit stops: %d\n", race_pit_stats$n))
+cat(sprintf("  Race Mean: %.2f seconds\n", race_pit_stats$mean))
+cat(sprintf("  Standard Deviation: %.2f seconds\n", race_pit_stats$sd))
+
+# Select a few pit stops to visualize (mix of fast, average, and slow)
+example_stops <- race_pit_stats$data %>%
+  filter(
+    (driver == "Verstappen" & stop == 1) |
+    (driver == "Alonso" & stop == 1) |
+    (driver == "Pérez" & stop == 2) |
+    (driver == "Albon" & stop == 1)
+  ) %>%
+  arrange(duration_sec) %>%
+  select(driver, duration_sec, stop, lap)
+
+cat("\nExample pit stops for visualization:\n")
+print(example_stops)
+
+# Create labeled visualization showing where each pit stop falls on the z-score scale
+fig_zscore_demo <- plot_labeled_pit_stops(
+  example_stops,
+  circuit_mean = race_pit_stats$mean,
+  circuit_sd = race_pit_stats$sd,
+  title = sprintf("%s %d - Pit Stop Z-Score Demonstration",
+                  race_pit_stats$race_name, race_pit_stats$year),
+  circuit_name = "vs Race Average"
+)
+print(fig_zscore_demo)
+ggsave(file.path(OUTPUT_DIR, "zscore_demonstration.png"), fig_zscore_demo,
+       width = 12, height = 7, dpi = 150)
+cat("\nSaved: zscore_demonstration.png\n")
+
+# KEY INSIGHT: This chart shows how raw pit stop times become z-scores.
+# The same visualization approach applies to Red Bull's season data below!
 
 cat("\n--------------------------------------------------\n")
 cat("SAMPLE DATA (first 3 races):\n")
@@ -214,7 +263,7 @@ cat("======================================================================\n")
 # Each race gets its own UCL and LCL based on its subgroup size.
 
 # TODO 5: Calculate variable control limits for all subgroups
-# HINT: Use calculate_variable_control_limits(x_double_bar, r_bar, subgroup_sizes)
+# HINT: Use calculate_variable_control_limits(x-bar-data, r-bar-data, subgroup_sizes)
 control_limits <- calculate_variable_control_limits(____, ____, ____)
 
 # Extract the limit vectors from the result
@@ -418,14 +467,8 @@ cat("======================================================================\n")
 # Your answer: ________________________________________________________________
 # _____________________________________________________________________________
 # _____________________________________________________________________________
-
-# QUESTION 7.3: If you were the pit crew manager and saw an out-of-control
-# signal, what would you do? How would you investigate?
-# Your answer: ________________________________________________________________
-# _____________________________________________________________________________
-# _____________________________________________________________________________
-
-# QUESTION 7.4: Why is it important to use z-scores instead of raw pit stop
+#
+# QUESTION 7.3: Why is it important to use z-scores instead of raw pit stop
 # times when comparing performance across different races?
 # Your answer: ________________________________________________________________
 # _____________________________________________________________________________
