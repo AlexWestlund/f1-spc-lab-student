@@ -32,6 +32,8 @@
 # REFERENCE: Groover Chapter 21 - Statistical Process Control
 # ==============================================================================
 
+library(dplyr)
+library(ggplot2)
 
 # First, load the backend library (DO NOT MODIFY - run from repo root directory)
 source("scripts/f1_backend.R")

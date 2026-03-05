@@ -55,6 +55,7 @@ cat("PART 1: DATA EXPLORATION\n")
 cat("======================================================================\n")
 
 library(dplyr)
+library(ggplot2)
 
 # ==============================================================================
 # IMPORTANT: SET YOUR WORKING DIRECTORY
