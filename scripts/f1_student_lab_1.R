@@ -50,9 +50,9 @@ R.version.string  # Run this line - you should see something like "R version 4.x
 # modern hybrid era (2014-2024) for meaningful engineering analysis.
 # ==============================================================================
 
-cat("======================================================================\n")
-cat("PART 1: DATA EXPLORATION\n")
-cat("======================================================================\n")
+# cat("======================================================================\n")
+# cat("PART 1: DATA EXPLORATION\n")
+# cat("======================================================================\n")
 
 library(dplyr)
 library(ggplot2)
@@ -126,7 +126,7 @@ cat("\n--- Data loaded (Hybrid Era 2014-2024) ---\n")
 # ==============================================================================
 
 cat("\n======================================================================\n")
-cat("PART 2: PARETO ANALYSIS - Root Cause of DNFs (Hybrid Era 2014-2024)\n")
+cat("PART 1: PARETO ANALYSIS - Root Cause of DNFs (Hybrid Era 2014-2024)\n")
 cat("======================================================================\n")
 
 # Load the backend library
