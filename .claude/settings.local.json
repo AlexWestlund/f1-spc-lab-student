@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pandoc '/mnt/c/Users/afist/OneDrive/Desktop/BioReD/142 Lab/EIND 142 Final Technical Memo Guidelines.docx' -t markdown)",
+      "Read(///wsl.localhost/FedoraLinux-43/home/alexw/f1-spc-lab-student/data/**)"
+    ]
+  }
+}
