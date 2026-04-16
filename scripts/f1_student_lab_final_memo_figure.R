@@ -39,10 +39,12 @@ cat("======================================================================\n")
 # that accounted for ~80% of fleet-wide DNFs. Copy the exact category names.
 # You can replace the placeholder "____" value below with your categories.
 # ==============================================================================
-vital_few_categories <- c("____", "____")
 
 
-# ==============================================================================
+vital_few_categories <- c("___","___", "___")  # <-- REPLACE with your categories, e.g. c("Electrical", "Mechanical", "Accident")
+
+
+==============================================================================
 # INPUT VALIDATION — catches typos before they produce empty plots
 # ==============================================================================
 
